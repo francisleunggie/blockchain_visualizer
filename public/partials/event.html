@@ -1,0 +1,17 @@
+<div ng-if="events.length > 0" ng-repeat="event in getActiveEvent(name)">
+<div class="eventCell"  ng-class="[event.side]" ng-click="switchEvent(name)">
+	<div class="counter">{{events.length}}</div>
+
+	<p class="gentleLeft">event: <span>{{ event.name }}</span></p>
+	<p class="gentleLeft">blockNo: <span>{{ event.blockno }}</span></p>
+	<p class="gentleLeft">txnHash: <span>{{ event.txnHash | limitTo:12 }}..</span></p>
+	<p class="gentleLeft">contract: <span>{{ event.contract }}</span></p>
+	<p class="gentleLeft" ng-if="event.args._bank">bank: <span>{{ event.args._bank | limitTo:6 }}</span></p>
+	<p class="gentleLeft" ng-if="event.args._transactionID">bank: <span>{{ event.args._transactionID }}</span></p>
+	<p class="gentleLeft" ng-if="event.args._txID">txnID: <span>{{ event.args._txID }}</span></p>
+	<p class="gentleLeft" ng-if="event.args.amount">amount: <span>{{ event.args.amount.valueOf() | currency }}</span></p>
+
+	<p class="gentleLeft">memo: <span>{{ event.memo | limitTo:10 }}</span></p>
+</div>
+<div class="innerCell" ng-if="events.length == 0">
+</div>

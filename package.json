@@ -1,0 +1,19 @@
+{
+  "name": "block_visual001",
+  "version": "0.0.0",
+  "description": "Build a visualization tool using web3 lib.",
+  "dependencies": {
+    "JSON": "^1.0.0",
+    "async": "^2.1.4",
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "debug": "~2.2.0",
+    "ejs": "^2.5.2",
+    "express": "^4.14.0",
+    "http": "0.0.0",
+    "morgan": "^1.7.0",
+    "serve-favicon": "^2.3.2",
+    "socket.io": "^1.6.0",
+    "web3": "^0.17.0-beta"
+  }
+}

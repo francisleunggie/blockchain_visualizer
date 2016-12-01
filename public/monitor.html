@@ -1,0 +1,43 @@
+<html ng-app="BlockchainMonApp">
+    <head>
+        <title>Blockchain Monitor</title>
+        <script type="text/javascript" src="javascripts/angular.min.js"></script>
+		<script type="text/javascript" src ="javascripts/socket.io-1.4.5.js">  </script>
+		<script type="text/javascript" src ="javascripts/jquery-1.11.1.js">  </script>
+		<script type="text/javascript" src ="javascripts/jquery.qtip.min.js">  </script>
+        <script type="text/javascript" src="javascripts/app.js"></script>
+        <script type="text/javascript" src="javascripts/socket.js"></script>
+        <script type="text/javascript" src="javascripts/services.js"></script>
+        <script type="text/javascript" src="javascripts/controllers.js"></script>
+        <script type="text/javascript" src="javascripts/directives.js"></script>
+        <script type="text/javascript" src="javascripts/styling.js"></script>
+		<link rel="stylesheet" type="text/css" href="stylesheets/monitor.css">
+		<link rel="stylesheet" type="text/css" href="stylesheets/jquery.qtip.min.css">
+    </head>
+    <body ng-controller="BlockchainController">
+		<div class="hundredPercent">
+			<div class="screenWidth topRow">
+				<div class="sideBySide" ng-repeat="(name, events) in processedData[blockIndex[selectedBlock]].events" event></div>
+				<div class="sideBySide"><br/>	<br/>	<br/>	<br/>	<br/>	<br/>	</div>
+			</div>
+			<div class="screenWidth midRow">
+				<div class="sideBySide" ng-repeat="(name, bal) in balances" balance></div>
+				<div class="sideBySide"><br/>	<br/>	<br/>	<br/>	<br/>	<br/>	</div>
+			</div>
+			<div class="screenWidth">
+				<div class="screenWidth blockRows" ng-repeat="data in processedData">
+					<div class="sideBySide" ng-repeat="(bank, txns) in data.trxns" transaction>
+					</div>
+					<div class="sideBySide">
+						<div class="cellContainer blockCell"   ng-click="selectBlock(data.blockno)">
+							<p class="gentleLeft">blockNum: <span>{{ data.block.blockNo | limitTo:12 }}</span></p>
+							<p class="gentleLeft">blockHash: <span>{{ data.block.blockHash | limitTo:12 }}..</span></p>
+							<p class="gentleLeft">parentHash: <span>{{ data.block.parentHash | limitTo:12 }}..</span></p>
+							<p class="gentleLeft">no of txns: <span>{{ data.block.transactions.length }}</span></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    </body>
+</html>

@@ -1,0 +1,13 @@
+<div  ng-repeat="txn in txns" >
+	<div class="cellContainer hasToolTip " ng-class="[txn.ind]" ng-click="selectTxn(txn.txnHash)" title="{{ txn.txnHash }}">
+		<p class="gentleLeft">txnHash: <span>{{ txn.txnHash | limitTo:12 }}..</span></p>
+		<p class="gentleLeft">action: <span  ng-bind="txn.fnName"></span></p>
+		<p class="gentleLeft" ng-if="txn.amount">amount: <span>{{txn.amount|currency}}</span></p>
+		<p class="gentleLeft" ng-if="txn.inputs._bankAddress > 0">account: <span>{{txn.inputs._bankAddress | limitTo:12 }}..</span></p>
+		<p class="gentleLeft" ng-if="txn.inputs._transactionNum">txnID: <span>{{txn.inputs._transactionNum}}</span></p>
+		<p class="gentleLeft">memo: <span  ng-bind="memo">{{ txn.memo | limitTo:12 }}..</span></p>
+	</div>
+</div>
+<div class="emptyBlock" ng-if="txns.length == 0">
+	<br/>	<br/>	<br/>			
+</div>

@@ -1,0 +1,1 @@
+$('.hasToolTip').qtip();

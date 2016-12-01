@@ -1,0 +1,193 @@
+ <html>
+ <head>
+ <script src = "javascripts/socket.io-1.4.5.js">  </script>
+	 <script src = "javascripts/jquery-1.11.1.js">  </script>
+	 <script>
+	var socket = io('/mon');
+var blocks = [];
+var txnView = {};
+var pledgeRedeemTypes = ['pledge', 'redeem'];
+var banks = ["mas", "baml", "dbs", "hsbc", "jpm", "ocbc", 'uob'];
+
+function mergeMap(map, oldMap) {
+	Object.keys(map).forEach(function (key) {
+		var value = map[key];
+		if (value && value.length> 0) {
+			if (oldMap[key]) {
+				oldMap[key] = oldMap[key].concat(value);
+			} else {
+				oldMap[key] = value;
+			}
+
+		}
+	});
+}
+function emtpyOut(keepData) {
+	banks.forEach(function (bank) {
+		$('#' + bank).empty();
+		$('#' + bank + '_events').empty();
+	});
+	$('#blocks').empty();
+	if (!keepData) {
+		blocks = [];
+		txnView = {};
+	}
+}
+function refreshMe() {
+	socket.emit('refresh', {
+		refresh: 'please'
+	});
+	emtpyOut();
+}
+function updateData(data) {
+	if (!blocks || blocks.length == 0) {
+		console.log('replace');
+		blocks = data.blocks;
+		txnView = data.txnView;
+	} else {
+		console.log('concat');
+		blocks = blocks.concat(data.blocks);
+		blocks = Array.from(new Set(blocks));
+		//console.log(blocks);
+		blocks.forEach(function (block) {
+			if (data.txnView[block.blockNo])
+				txnView[block.blockNo] = data.txnView[block.blockNo];
+		});
+		console.log(txnView);
+		/*
+		lastHeight = blocks[blocks.length-1].blockNo;
+		console.log('lastHeight = '+ lastHeight, ' data height = ' + data.blocks[data.blocks.length-1].blockNo);
+
+		data.blocks.forEach(function(block) {
+		if (block.blockNo> lastHeight) {
+		console.log('should never come here ', block.blockNo, lastHeight);
+		blocks.push(block);
+		txnView[block.blockNo] = data.txnView[block.blockNo];
+		}
+		});*/}
+}
+socket.on('height check', function () {
+	console.log('height check');
+	var currentHeight = 0;
+	if (blocks.length> 0)
+		currentHeight = blocks[blocks.length-1].blockNo;
+	socket.emit('current height', {
+		currentHeight: currentHeight
+	});
+});
+socket.on('welcome', function (data) {
+	console.log(data);
+	socket.emit('private message', {
+		clientHeight: 0
+	});
+	emtpyOut();
+});
+socket.on('New Transactions', function (data) {
+	console.log("new transaction set");
+	if (typeof data !== 'string') {
+		console.log(data);
+		//if (data.to) toTxn = toTxn.concat(data.to);
+		updateData(data);
+		console.log(blocks);
+		if (txnView) {
+			var refresh = {};
+			banks.forEach(function (bank) {
+				refresh[bank] = [];
+				refresh[bank + '_events'] = [];
+			});
+			emtpyOut(true);
+			Object.keys(txnView).forEach(function (key) {
+				txnView[key].forEach(function (unified) {
+					if (unified.positivelyAffected || unified.negativelyAffected) {
+						if (unified.positivelyAffected && unified.negativelyAffected) {
+							var action = unified.negativelyAffected + ' ' + unified.fnName + ' ' + unified.positivelyAffected + ' $' + unified.inputs['_transactionAmt'].valueOf() + ', with remarks: ' + unified.inputs['_remarks'];
+							refresh[unified.positivelyAffected].push('<div class=\'positive\'>' + action + '</div>');
+							refresh[unified.positivelyAffected + '_events'].push('<div class=\'positive\'>' + JSON.stringify(unified.events[1]) + '</div>');
+							refresh[unified.negativelyAffected].push('<div class=\'negative\'>' + action + '</div>');
+							refresh[unified.negativelyAffected + '_events'].push('<div class=\'negative\'>' + JSON.stringify(unified.events[0]) + '</div>');
+						} else {
+							var side = unified.positivelyAffected ? 'positive' : 'negative';
+							var bankName = unified[side + 'lyAffected'];
+							var amt = unified.inputs['_transactionAmt'] ? unified.inputs['_transactionAmt'].valueOf() : unified.events[1].args.amount.valueOf();
+							var action = unified.fnName + '$' + amt + ' for ' + bankName;
+							refresh[bankName].push('<div class=\'' + side + '\'>' + action + '</div>');
+							unified.events.forEach(function (event) {
+								refresh[bankName + '_events'].push('<div class=\'' + side + '\'>' + JSON.stringify(event) + '</div>');
+							});
+						}
+					}
+				});
+
+			});
+			banks.forEach(function (bank) {
+				$('#' + bank).append(refresh[bank]);
+				$('#' + bank + '_events').append(refresh[bank + '_events']);
+			});
+		}
+		if (blocks)
+			$('#blocks').append('<div>' + JSON.stringify(blocks) + '</div>');
+	}
+});
+socket.on('bank balances', function (data) {
+	console.log('new Balances');
+	if (typeof data !== 'string') {
+		console.log(data);
+		$('#balances').text(JSON.stringify(data));
+	}
+});
+
+ </script>
+ <style>
+body {
+	margin: 0;
+	padding: 0;
+}
+table {
+	table-layout: fixed;
+}
+td {
+	word-wrap: break-word;
+	vertical-align: top;
+	margin: 5px;
+	border-width: 2px;
+	border-color: gray;
+}
+div {
+	margin: 5px;
+	border-width: 2px;
+	border-color: gray;
+}
+.positive {
+	background-color: lightgreen;
+}
+.negative {
+	background-color: lightpink;
+}
+ </style>
+ </head>
+ <body>
+ <button onclick = "refreshMe()"> refresh </button>
+	 <div id = 'balances'>  </div>
+	 <table width = "100%">
+	 <tr>  <td id = "blocks" width = "100%" colspan = 7>  </td>  </tr>
+	 <tr>
+	 <td id= "mas" width = "14%">  </td>
+	 <td id= "baml" width = "14%">  </td>
+	 <td id= "dbs" width = "14%">  </td>
+	 <td id= "hsbc" width = "14%">  </td>
+	 <td id= "jpm" width = "14%">  </td>
+	 <td id= "ocbc" width = "14%">  </td>
+	 <td id= "uob" width = "14%">  </td>
+	 </tr>
+	 <tr>
+	 <td id= "mas_events" width = "14%">  </td>
+	 <td id= "baml_events" width = "14%">  </td>
+	 <td id= "dbs_events" width = "14%">  </td>
+	 <td id= "hsbc_events" width = "14%">  </td>
+	 <td id= "jpm_events" width = "14%">  </td>
+	 <td id= "ocbc_events" width = "14%">  </td>
+	 <td id= "uob_events" width = "14%">  </td>
+	 </tr>
+	 </table>
+	 </body>
+	</html>

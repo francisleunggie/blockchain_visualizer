@@ -37,7 +37,6 @@ app.set('view engine', 'html'); // set engine as html
 
 //---handle routes
 app.use('/', index);
-//app.use('/mon', mon);
 app.use(utils.handleNotFound);
 app.use(utils.printStackTrace);
 
@@ -76,7 +75,9 @@ mon.on('connection', function (socket) {
 			var start = end > 25? blocks.length - 25:0;
 			var newBlocks = blocks.slice(start, end), newTxnView = {};
 			newBlocks.forEach(function(block) {
-				newTxnView[block.blockNo] = txnView[block.blockNo];
+				if (txnView && txnView[block.blockNo]) 
+					newTxnView[block.blockNo] = txnView[block.blockNo];
+				else newTxnView[block.blockNo] = [];
 			});
 			/*var currentHeight = msg.currentHeight == 0?getBlocksEnd(blocks, false)-25:msg.currentHeight;
 			var newBlocks = [], newTxnView = {};
@@ -90,6 +91,7 @@ mon.on('connection', function (socket) {
 			socket.emit('New Transactions', {blocks: newBlocks, txnView: newTxnView});
 		}
 		if (latestBalances) socket.emit('bank balances', latestBalances);
+		if (bankNames) socket.emit('bankNames', bankNames);
 	});
 
 	socket.on('disconnect', function () {
@@ -151,13 +153,15 @@ setInterval(function() {
 						blocks = data.blocks;
 						txnView = data.txnView;
 					} else {
+						if (!txnView) txnView = {};
 						lastHeight = getBlocksEnd(blocks, false);
 						data.blocks.forEach(function(block) {
 							if (block.blockNo > lastHeight) {
 								blocks.push(block);
-								txnView[block.blockNo] = data.txnView[block.blockNo];
+								if (data.txnView && data.txnView[block.blockNo]) txnView[block.blockNo] = data.txnView[block.blockNo];
 							}
 						});
+						
 					}
 					
 				} else if (eventName == 'bank balances') {

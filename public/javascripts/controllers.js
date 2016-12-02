@@ -44,10 +44,17 @@ angular.module('BlockchainMonApp.controllers', [])
 			console.log('selectedBlock', $scope.selectedBlock);
 		};
 		
-		$scope.selectTxn = function(txnHash) {
+		$scope.selectTxn = function(blockno, txnHash) {
 			$scope.selectedTxn = txnHash;
+			$scope.selectedBlock = blockno;
+			$scope.$broadcast('txn chosen', {hash: txnHash});
 			console.log('$scope.selectedTxn', $scope.selectedTxn);
 		};
+		
+		$scope.$on('txn chosen', function(event, args) {
+			console.log('args', args);
+			updateToolTip('.' + args.hash);
+		});
 		
 		$scope.switchEvent = function(bankName) {
 			var idx = $scope.blockIndex[$scope.selectedBlock];
@@ -58,12 +65,27 @@ angular.module('BlockchainMonApp.controllers', [])
 		};
 		
 		$scope.getActiveEvent = function(bankName) {
-			var idx = $scope.blockIndex[$scope.selectedBlock];
-			var data = $scope.processedData[idx];
-			var activeEvent = data.activeEvent[bankName];
+			var data = $scope.processedData[$scope.blockIndex[$scope.selectedBlock]];
+			var activeEvent = $scope.getActiveEventIdx(bankName);
 			if (!data || data.events.lenght == 0) return [];
 			return [data.events[bankName][activeEvent]];
-		}
+		};
+		
+		$scope.getActiveEventIdx = function(bankName) {
+			var idx = $scope.blockIndex[$scope.selectedBlock];
+			var data = $scope.processedData[idx];
+			return data.activeEvent[bankName];
+		};
+		
+		$scope.getSign = function(side) {
+			if (side) {
+				if (side == 'positive') return '+';
+				if (side == 'negative') return '-';
+			}
+			return '';
+		};
+		
+		$scope.updateToolTip = updateToolTip;
 	});
 
 function clone(obj, needToClone) {
@@ -95,7 +117,7 @@ function updateData(newData, $scope) {
 		initArrayPerKey($scope.banks, newStruct.trxns);
 		var blockno = block.blockNo;
 		var txns = newData.txnView[blockno];
-		if (txns) {
+		if (Array.isArray(txns)) {
 				console.log("print here", blockno, txns);
 			txns.forEach(function(txn) {
 				console.log(blockno, txn);
@@ -114,14 +136,16 @@ function updateData(newData, $scope) {
 				} else {
 					var ttxn = txn;
 					//ttxn.side = 'neutral'; // socket.io bug
-					newStruct.trxns[bank].push(ttxn);
+					if (ttxn && bank) newStruct.trxns[bank].push(ttxn);
 					needToClone++;	
 				}
 				if (txn.events) {
 					txn.events.forEach(function(event) {
 						var bank = event.bankName;
-						newStruct.events[bank].push(event);
-						newStruct.activeEvent[bank] = 0;
+						if (event && bank) {
+							newStruct.events[bank].push(event);
+							newStruct.activeEvent[bank] = 0;
+						}
 					});
 				}
 			});
@@ -135,4 +159,61 @@ function updateData(newData, $scope) {
 	});
 	console.log('blockindex', $scope.blockIndex);
 	$scope.selectedBlock = $scope.processedData[0].blockno;
+}
+
+function updateToolTip(selector) {
+	/*$.fn.qtip.styles.tooltipDefault = {
+		background  : '#132531',
+		color       : '#FFFFFF',
+		textAlign   : 'left',
+		border      : {
+			width   : 2,
+			radius  : 4,
+			color   : '#C1CFDD'
+		},
+		width       : 220
+	}*/
+	$(selector+':visible').each( function( ) {
+		var tooltip = $( this ).attr( 'tooltip' );
+		console.log('tooltip', tooltip);
+		// the element has no rating tag or the rating tag is empty
+		if ( tooltip == undefined || tooltip == '' ) {
+			tooltip = 'no transaction hash available';
+		} 
+
+		// create the tooltip for the current element
+		$( this ).each(function() {
+			$(this).qtip( {
+			content     : { text: tooltip, title: 'Transaction Hash'},
+			overwrite: true,
+			show: {
+				event: 'click',
+				target: $('.txn[tooltip=\''+tooltip+'\']')
+			},hide: {
+				event: 'mouseleave',
+				target: $('.txn[tooltip=\''+tooltip+'\']')
+			}
+			,
+			position    : {
+				target  : $( this ),
+				my: 'top left',
+				at: 'bottom right',
+				resize: true
+			},
+			style       : { classes: 'qtip-tipsy qtip-shadow' },
+			events : {
+				render: function (event, api) {
+					/*if ($(this).is(':hidden')) {
+						console.log('hide me');
+						api.elements.target.toggleClass(event.type === 'tooltiphide');
+					}*/
+				},
+				hidden: function(event, api) {
+					if (!$(this).hasClass('txn'))
+						api.destroy(true);
+				}
+			}
+			});
+		} );
+	} );
 }

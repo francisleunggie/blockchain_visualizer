@@ -1,5 +1,5 @@
-<div class="innerCell"  >
-<p class="gentleLeft">blockNum: <span>{{ block.blockNo | limitTo:12 }}..</span></p>
+<div class="innerCell"  ng-controller="BlockchainController">
+<p class="gentleLeft">blockNum: <span>{{ processedData[blockIndex[selectedBlock]].block.blockNo | limitTo:12 }}..</span></p>
 <!--p class="gentleLeft">blockHash: <span>{{ blockHash | limitTo:12 }}..</span></p>
 <p class="gentleLeft">parentHash: <span>{{ parentHash | limitTo:12 }}..</span></p>
 <p class="gentleLeft">no of txns: <span>{{ transactions.length }}</span></p-->

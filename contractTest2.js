@@ -87,14 +87,14 @@ function getSeries(num, zeroMode) {
 }
 
 if (needToTransfer) {
-	transfer(1, 0, 120);
+	transfer(6, 3, 9800000);
 } else if (needToReset) {
-	async.each(getSeries(7, false), 
+	async.each(getSeries(8, false), 
 		function(bankNo, callback) {
 			//createStash(bankNo);
-			//pledgeBank(bankNo, 11112);
+			//pledgeBank(bankNo, 100000000);
 			//redeemBank(bankNo, 1112);
-			//acceptPledge(bankNo);
+			acceptPledge(bankNo);
 			callback();
 		},
 		function(err) {

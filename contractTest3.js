@@ -5,7 +5,9 @@ const p = require('./lib/p');
 const async = require('async');
 
 var web3 = helper.getWeb3();
-var needToReset = true;
+var needToPrint = true;
+var startFromBlock = 5;
+var endBlock = 7183; // put the block number you want to see
 
 // get banks and use to instantiate stash
 var banks = helper.getBanks();
@@ -24,7 +26,7 @@ console.log(balances);
 */
 function printDecodedLogs() {
 	
-	return bc.getBlocksAndTxns(20, null, ["receipts","taContracts"], function(error, response) {
+	return bc.getBlocksAndTxns(startFromBlock, endBlock, ["receipts","taContracts"], function(error, response) {
 		console.log('--taContract');
 		console.log(p.pretty(response.blocks));
 		console.log(p.pretty(response.txnView));
@@ -32,7 +34,7 @@ function printDecodedLogs() {
 	});	
 }
 
-if (needToReset) {
+if (needToPrint) {
 	printDecodedLogs();
 } else {
 	setTimeout(function () {

@@ -2,20 +2,13 @@ angular.module('BlockchainMonApp.controllers', [])
 	.controller('BlockchainController', function($scope,socket) {
 		console.log('blockchain controller created!');
 		$scope.description = "know what is happening in your blockchain";
-		$scope.blocks = [], $scope.processedData = [], $scope.blockIndex = {}, $scope.events = {}, $scope.banks, $scope.skipEmpty=false;
+		$scope.blocks = [], $scope.processedData = [], $scope.blockIndex = {}, $scope.events = {}, $scope.banks;
 		
 		socket.on('welcome', function (data) {
 			console.log(data);
-			var currentHeight = 0;
-			socket.emit('current height', {
-				currentHeight: currentHeight
+			socket.emit('private message', {
+				clientHeight: 0
 			});
-		});
-		
-		socket.on('last block', function (data) {
-			console.log(data);
-			$scope.blockHeight = data.blockHeight;
-			$scope.lastupdated = Date.now();
 		});
 		
 		socket.on('bankNames', function (data) {
@@ -35,6 +28,7 @@ angular.module('BlockchainMonApp.controllers', [])
 			if (typeof data !== 'string') {
 				updateData(data, $scope);
 				console.log($scope.processedData);
+				$scope.lastupdated = Date.now();
 			}
 		});
 		
@@ -168,10 +162,10 @@ function initArrayPerKey(keys, obj) {
 function updateData(newData, $scope) {
 	console.log('update data', newData, $scope);
 	if (!newData.blocks) return;
-	newProcessedData = []; // clear the array
-	newBlockIndex = {}; // clear the array
+	$scope.processedData = []; // clear the array
+	$scope.events = {}; // clear the array
+	$scope.blockIndex = {}; // clear the array
 	newData.blocks.forEach(function(block) {
-		if ($scope.blockIndex && $scope.blockIndex[block.blockNo] > -1) return;
 		var newStruct = {blockno: block.blockNo, block : block, trxns : {}, events: {}, activeEvent: {}, activeTxn: {}};
 		initArrayPerKey($scope.banks, newStruct.events);
 		initArrayPerKey($scope.banks, newStruct.trxns);
@@ -218,20 +212,14 @@ function updateData(newData, $scope) {
 			});
 		}
 		
-		newProcessedData.push(newStruct);
+		$scope.processedData.push(newStruct);
 	});
-	// put oldest first, then add new data, and reverse again
 	$scope.processedData = $scope.processedData.reverse();
-	$scope.processedData = $scope.processedData.concat(newProcessedData);
-	$scope.processedData = $scope.processedData.reverse();
-	// only do this after merge
 	$scope.processedData.forEach(function(data, index) {
 		$scope.blockIndex[data.blockno] = index;
 	});
 	console.log('blockindex', $scope.blockIndex);
-	if (!$scope.skipEmpty 
-		|| $scope.processedData[0].block.transactions.length > 0) 
-		$scope.selectedBlock = $scope.processedData[0].blockno;
+	$scope.selectedBlock = $scope.processedData[0].blockno;
 }
 
 function updateToolTip(selector) {

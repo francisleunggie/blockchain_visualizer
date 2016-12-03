@@ -137,7 +137,7 @@ p {
 	top: 10%;
 	vertical-align: middle;
 	margin: auto;
-	cursor: hand;
+	//cursor: hand;
 	-moz-box-shadow: 1px 2px 4px rgba(206, 128, 2, .5);
     -webkit-box-shadow: 1px 2px 4px rgba(206, 128, 2, .5);
     box-shadow: 1px 2px 4px rgba(206, 128, 2, .5);
@@ -153,8 +153,9 @@ p {
 	height: 15px;
 	width: 30px;
 	margin: auto;
-	background-color: #dee8e8;
+	background-color: #dbd4ba;
 	color: black;
+	z-index: 200;
 }
 .emphasis {
 	font-weight: 700;
@@ -171,9 +172,11 @@ p {
 }
 .cellContainer{
 	//display:inline-block;
+	position: relative;
 	height:92%;
 	width:92%;
-	//padding: 2.2px;
+	//padding-top: 10px;
+	//margin-bottom: -12px;
 	margin: auto;
 	vertical-align: middle;
 }
@@ -211,6 +214,24 @@ p {
 	padding-top: 7px;
 	padding-bottom: 7px;
 	opacity: 0.5;
+}
+@keyframes toGray {
+    from {background-color: #ffe484;}
+    to {background-color: darkgray;}
+}
+@keyframes toBlack {
+    from {background-color: #8c7d46;}
+    to {background-color: black;}
+}
+.highlight {
+	opacity: 1;
+	box-shadow: 2px 2px 3px 3px rgba(0,0,0,0.2);
+	animation-name: toGray;
+    animation-duration: 0.5s;
+}
+.highlightTxn {
+	animation-name: toBlack;
+    animation-duration: 0.7s;
 }
 .positive_event {
 	//border: 1px #53ed67 solid;
@@ -258,4 +279,25 @@ p {
 }
 .qtip-tipsy  .qtip-content, .qtip-shadow .qtip-content{
 	font-size: 14px;
+}
+.timeHolder, .qtip-jtools{
+	display: block;
+	text-align: left;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px;
+	//color: #222;
+	//font-size: 18px;
+	//font-weight: bold;
+}
+.toggle-switch {
+	min-height: 15px;
+	border-color: lightgray !important; 
+	min-width: 30px !important;
+}
+.label {
+	font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	color:#777;
+	font-weight:300;	
+	
 }

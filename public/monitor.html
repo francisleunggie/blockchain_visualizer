@@ -12,24 +12,48 @@
         <script type="text/javascript" src="javascripts/directives.js"></script>
         <script type="text/javascript" src="javascripts/jquery.scrollify.min.js"></script>
         <script type="text/javascript" src="javascripts/styling.js"></script>
+        <script type="text/javascript" src="javascripts/angular-toggle-switch.js"></script>
 		<link rel="stylesheet" type="text/css" href="stylesheets/monitor.css">
 		<link rel="stylesheet" type="text/css" href="stylesheets/jquery.qtip.min.css">
+		<link rel="stylesheet" type="text/css" href="stylesheets/angular-toggle-switch.css">
     </head>
     <body ng-controller="BlockchainController" >
 		<div class="hundredPercent" ng-view>
 			<div class="screenWidth fixation" >
 			<div class="screenWidth midRow">
 				<div class="sideBySide" ng-repeat="(name, bal) in balances" balance></div>
-				<div class="sideBySide"><br/>	<br/>	<br/>	<br/>	<br/>	<br/>	</div>
+				<div class="sideBySide">
+					<p style="height: 30px">
+						<span class="label"> hide empty blocks </span><br/>
+						<toggle-switch ng-model="skipEmpty"><toggle-switch>
+						
+					</p>					
+					<br/><br/><br/>
+				</div>
 			</div>
 			<div class="screenWidth topRow">
 				<div class="sideBySide" ng-repeat="(name, events) in processedData[blockIndex[selectedBlock]].events" event></div>
-				<div class="sideBySide"><br/>	<br/>	<br/>	<br/>	<br/>	<br/>	</div>
+				<div class="sideBySide  qtip-shadow"> 
+					<p>
+						<span class="timeHolder ">
+							<span class="label">last updated</span> <br/>{{lastupdated | date:"MM/dd/yyyy 'at' h:mma"}}
+						</span>
+						<span class="timeHolder ">
+							<span class="label">blocks tracks </span><br/>
+							{{processedData.length}}
+						</span>
+						<span class="timeHolder ">
+							<span class="label">last block </span><br/>
+							<span class="emphasis">{{blockHeight}}</span><br/>
+						</span>
+					</p>					
+					<br/><br/><br/>
+				</div>
 			</div>
 			</div>
 			<div class="screenWidth bottomRow "  style="/*margin-top: 15%;*/">
 				<div class="" ng-repeat="data in processedData">
-					<div class="screenWidth blockRows" ng-class="[data.blockno == selectedBlock?'selectedBorder':'']" >
+					<div class="screenWidth blockRows" ng-if="skipEmpty?data.block.transactions.length > 0:true" ng-class="[data.blockno == selectedBlock?'selectedBorder':'']" >
 						<div class="sideBySide" ng-repeat="(bank, txns) in data.trxns" transaction>
 						</div>
 						<div class="sideBySide">
@@ -42,7 +66,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="buffer">		<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/>	<br/>	<br/>{{updateToolTip('.hasToolTip')}}</div>
+				<div class="buffer" style="min-height: 400px;">		<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/>	<br/>	<br/>{{updateToolTip('.hasToolTip')}}</div>
 			</div>
 		</div>		
     </body>

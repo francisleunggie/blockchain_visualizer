@@ -122,6 +122,7 @@ var heightRequest = 0;
 var latestBalances;
 setInterval(function() {
 	latestBlock = web3.eth.blockNumber;
+	mon.emit('last block', {blockHeight: latestBlock});
 	console.log('diff: ' + getDiffFromLatestBlocks(blocks, latestBlock));
 	numNewBlocks = getDiffFromLatestBlocks(blocks, latestBlock);
 	if (numNewBlocks <= 0) return;

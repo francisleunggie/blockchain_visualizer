@@ -1,2 +1,2 @@
 //app.js - angular controller
-angular.module('BlockchainMonApp', ['BlockchainMonApp.socket', 'BlockchainMonApp.controllers', 'BlockchainMonApp.directives']);
+angular.module('BlockchainMonApp', ['BlockchainMonApp.socket', 'BlockchainMonApp.controllers', 'BlockchainMonApp.directives', 'toggle-switch']);

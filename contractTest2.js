@@ -4,11 +4,29 @@ const p = require('./lib/p');
 const async = require('async');
 
 var web3 = helper.getWeb3();
-var needToTransfer = true;
-var needToReset = false;
+var banks = helper.getBanks();
+var needToTransfer = false; // can change: action trigger switch for transfer
+var paymap = {
+	6: [3, 4, 5],
+	0: [1, 2, 7],
+	7: [0, 4, 6],
+	1: [3, 5, 0],
+	3: [1, 1, 2]
+};
+var amount = 5000000; // can change
+var create = 0;			// can change: action trigger switches
+var pledge = 0;         // can change: action trigger switches
+var redeem = 0;         // can change: action trigger switches
+var accept = 0;         // can change: action trigger switches
+var reject = 1;         // can change: action trigger switches
+var override = null;	// can change: overrides getSeries
+var txnID = 407;			// can change: when you accept / reject
+var seriesEnd = accept+reject>0? txnID:Object.keys(banks).length,
+	zeroMode = accept+reject>0?false:true;
+var needToReset = (create + pledge + redeem + accept + reject)>0;
+
 
 // get banks and use to instantiate stash
-var banks = helper.getBanks();
 console.log(banks);
 
 // watch for ta's events
@@ -42,7 +60,7 @@ function pledgeBank(bankNo, amt, memo) {
 	});
 }
 
-// reddem stash 
+// redeem stash 
 function redeemBank(bankNo, amt, memo) {
 	var bankName = Object.keys(banks)[bankNo];
 	if (!memo) memo = 'Redeem '+ bankName;
@@ -58,6 +76,15 @@ function acceptPledge(txnId, memo) {
 		console.log(receipt);
 	});
 }
+
+// reject pledge
+function rejectPledge(txnId, memo) {
+	if (!memo) memo = 'Accept Pledge/Redeem '+ txnId;
+	helper.rejectPledgeStash(txnId, memo).then(function(receipt) {
+		console.log(receipt);
+	});
+}
+
 
 // transfer
 function transfer(fromNo, toNo, amt, memo) {
@@ -86,26 +113,35 @@ function getSeries(num, zeroMode) {
 	return returnVal;
 }
 
+var series = Array.isArray(override)? override : getSeries(seriesEnd, zeroMode); 
+
 if (needToTransfer) {
-	transfer(6, 3, 9800000);
+	Object.keys(paymap).forEach(function(payer) {
+		payees = paymap[payer];
+		payees.forEach(function(payee) {
+			transfer(payer, payee, amount);
+		});
+	});
+	
 } else if (needToReset) {
-	async.each(getSeries(8, false), 
+	async.each( series,
 		function(bankNo, callback) {
-			//createStash(bankNo);
-			//pledgeBank(bankNo, 100000000);
-			//redeemBank(bankNo, 1112);
-			acceptPledge(bankNo);
+			if (create > 0) createStash(bankNo);
+			if (pledge > 0) pledgeBank(bankNo, amount);
+			if (redeem > 0) redeemBank(bankNo, amount);
+			if (accept > 0) acceptPledge(bankNo);
+			if (reject > 0) rejectPledge(bankNo);
 			callback();
 		},
 		function(err) {
 			setTimeout(function () {
-				taEvents.stopWatching();
+			//	taEvents.stopWatching();
 			}, 500);
 		}
 	);
 } else {
 	setTimeout(function () {
-		taEvents.stopWatching();
+		//taEvents.stopWatching();
 	}, 500);
 }
 

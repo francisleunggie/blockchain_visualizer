@@ -13,6 +13,10 @@
         <script type="text/javascript" src="javascripts/jquery.scrollify.min.js"></script>
         <script type="text/javascript" src="javascripts/styling.js"></script>
         <script type="text/javascript" src="javascripts/angular-toggle-switch.js"></script>
+        <script type="text/javascript" src="javascripts/angular-material/angular-material.min.js"></script>
+		<script src="/javascripts/angular-aria/angular-aria.js"></script> 
+		<script src="/javascripts/angular-animate/angular-animate.js"></script> 
+		<link rel="stylesheet" type="text/css" href="javascripts/angular-material/angular-material.css">
 		<link rel="stylesheet" type="text/css" href="stylesheets/monitor.css">
 		<link rel="stylesheet" type="text/css" href="stylesheets/jquery.qtip.min.css">
 		<link rel="stylesheet" type="text/css" href="stylesheets/angular-toggle-switch.css">
@@ -56,17 +60,15 @@
 					<div class="screenWidth blockRows" ng-if="skipEmpty?data.block.transactions.length > 0:true" ng-class="[data.blockno == selectedBlock?'selectedBorder':'']" >
 						<div class="sideBySide" ng-repeat="(bank, txns) in data.trxns" transaction>
 						</div>
-						<div class="sideBySide">
-							<div class="cellContainer blockCell hand"   ng-click="selectBlock(data.blockno)">
-								<p class="gentleLeft">blockNum: <span>{{ data.block.blockNo | limitTo:10 }}</span></p>
-								<p class="gentleLeft">blockHash: <span>{{ data.block.blockHash | limitTo:10 }}..</span></p>
-								<p class="gentleLeft">parentHash: <span>{{ data.block.parentHash | limitTo:10 }}..</span></p>
-								<p class="gentleLeft">no of txns: <span>{{ data.block.transactions.length }}</span></p>
-							</div>
+						<div class="cellContainer blockCell hand"   ng-click="selectBlock(data.blockno)">
+							<p class="gentleLeft">blockNum: <span>{{ data.block.blockNo | limitTo:10 }}</span></p>
+							<p class="gentleLeft">blockHash: <span>{{ data.block.blockHash | limitTo:10 }}..</span></p>
+							<p class="gentleLeft">parentHash: <span>{{ data.block.parentHash | limitTo:10 }}..</span></p>
+							<p class="gentleLeft">no of txns: <span>{{ data.block.transactions.length }}</span></p>
 						</div>
 					</div>
 				</div>
-				<div class="buffer" style="min-height: 400px;">		<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/>	<br/>	<br/>{{updateToolTip('.hasToolTip')}}</div>
+				<div class="buffer" style="min-height: 400px;">		<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/><br/>	<br/>	<br/>	<br/>	<br/>	<br/></div>
 			</div>
 		</div>		
     </body>

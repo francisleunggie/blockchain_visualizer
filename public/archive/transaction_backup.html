@@ -1,0 +1,15 @@
+<div ng-if="txns.length > 0" ng-repeat="txn in getActiveTxn(txns[0].blockno, bank)" >
+	<div class="cellContainer hasToolTip hand txn" ng-class="[txn.ind,txn.txnHash==selectedTxn?'highlightTxn':'']"  tooltip="{{ txn.txnHash }}" >
+		<div  class="counter" ng-click="switchTxn(txn.blockno, bank)">{{(getActiveTxnIdx(txn.blockno, bank)+1)+ '\/' + txns.length}}</div>
+		<p class="gentleLeft" ng-click="selectTxn(txn.blockno, txn.txnHash, bank, txn.counterparty)"  style="margin-top: 13px; ">txnHash: <span>{{ txn.txnHash | limitTo:10 }}..</span></p>
+		<p class="gentleLeft ">action: <span class="emphasis" ng-bind="txn.fnName"></span></p>
+		<p class="gentleLeft" ng-if="txn.counterparty">payee: <span>{{txn.counterparty }}</span></p>
+		<p class="gentleLeft" ng-if="txn.amount">amount: <span>{{getSign(txn.ind) +(txn.amount|currency : "$" : 0)}}</span></p>
+		<p class="gentleLeft" ng-if="txn.inputs._bankAddress > 0">account: <span>{{txn.inputs._bankAddress | limitTo:12 }}..</span></p>
+		<p class="gentleLeft" ng-if="txn.inputs._transactionNum">txnID: <span>{{txn.inputs._transactionNum}}</span></p>
+		<p class="gentleLeft">memo: <span  ng-bind="memo">{{ txn.memo | limitTo:12 }}..</span></p>
+	</div>
+</div>
+<div class="emptyBlock" ng-if="txns.length == 0">
+	<br/>	<br/>	<br/>			
+</div>

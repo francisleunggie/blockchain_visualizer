@@ -1,6 +1,9 @@
 <div ng-if="txns.length > 0" ng-repeat="txn in getActiveTxn(txns[0].blockno, bank)" >
-	<div class="cellContainer hasToolTip hand txn" ng-class="[txn.ind,txn.txnHash==selectedTxn?'highlightTxn':'']"  tooltip="{{ txn.txnHash }}" >
+	<div class="cellContainer hand txn" ng-class="[txn.ind,txn.txnHash==selectedTxn?'highlightTxn':'']" >
 		<div  class="counter" ng-click="switchTxn(txn.blockno, bank)">{{(getActiveTxnIdx(txn.blockno, bank)+1)+ '\/' + txns.length}}</div>
+		<md-tooltip md-direction="top">
+          {{ txn.txnHash }}
+        </md-tooltip>
 		<p class="gentleLeft" ng-click="selectTxn(txn.blockno, txn.txnHash, bank, txn.counterparty)"  style="margin-top: 13px; ">txnHash: <span>{{ txn.txnHash | limitTo:10 }}..</span></p>
 		<p class="gentleLeft ">action: <span class="emphasis" ng-bind="txn.fnName"></span></p>
 		<p class="gentleLeft" ng-if="txn.counterparty">payee: <span>{{txn.counterparty }}</span></p>

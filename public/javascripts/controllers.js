@@ -55,20 +55,12 @@ angular.module('BlockchainMonApp.controllers', [])
 		$scope.selectTxn = function(blockno, txnHash, bankName, counterparty) {
 			$scope.selectedTxn = txnHash;
 			$scope.selectedBlock = blockno;
-			$scope.$broadcast('txn chosen', {hash: txnHash});
 			console.log('$scope.selectedTxn', $scope.selectedTxn);
 			if (counterparty) {
 				$scope.switchEventForTxn(txnHash, counterparty);
 			}
 			$scope.switchEventForTxn(txnHash, bankName);
 		};
-		
-		$scope.$on('txn chosen', function(event, args) {
-			console.log('args', args);
-			setTimeout(function() {
-				updateToolTip('.' + args.hash);
-			},500);
-		});
 		
 		$scope.switchEvent = function(bankName) {
 			var idx = $scope.blockIndex[$scope.selectedBlock];
@@ -144,8 +136,6 @@ angular.module('BlockchainMonApp.controllers', [])
 			}
 			return '';
 		};
-		
-		$scope.updateToolTip = updateToolTip;
 	});
 
 function clone(obj, needToClone) {
@@ -178,8 +168,7 @@ function updateData(newData, $scope) {
 		var blockno = block.blockNo;
 		var txns = newData.txnView[blockno];
 		if (Array.isArray(txns)) {
-				//console.log("print here", blockno, txns);
-			txns.forEach(function(txn) {
+				txns.forEach(function(txn) {
 				console.log(blockno, txn);
 				var needToClone = 0;
 				var bank = txn.bankName;
@@ -234,7 +223,7 @@ function updateData(newData, $scope) {
 		$scope.selectedBlock = $scope.processedData[0].blockno;
 }
 
-function updateToolTip(selector) {
+/*function updateToolTip(selector) {
 	$(selector+':visible').each( function( ) {
 		var tooltip = $( this ).attr( 'tooltip' );
 		//console.log('tooltip', tooltip);
@@ -248,10 +237,7 @@ function updateToolTip(selector) {
 			$(this).qtip( {
 			content     : { text: tooltip, title: 'Transaction Hash'},
 			overwrite: true,
-			/*show: {
-				event: 'dblclick',
-				//target: $('[tooltip=\''+tooltip+'\']:visible')
-			},*/hide: {
+			hide: {
 				event: 'click, mouseout, mouseleave',
 				target: $('[tooltip=\''+tooltip+'\']')
 			}
@@ -270,8 +256,6 @@ function updateToolTip(selector) {
 				render: function (event, api) {
 					if ($(this).hasClass('txn')) {
 						updateToolTip('.'+tooltip);
-						/*console.log('hide me');
-						api.elements.target.toggleClass(event.type === 'tooltiphide');*/
 					}
 				},
 				hidden: function(event, api) {
@@ -287,4 +271,4 @@ function updateToolTip(selector) {
 			});
 		} );
 	} );
-}
+}*/

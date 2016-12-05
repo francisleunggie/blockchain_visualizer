@@ -301,3 +301,8 @@ p {
 	font-weight:300;	
 	
 }
+
+md-tooltip {
+  font-size: 15px;
+  //background-color:rgba(0, 0, 0, 0.5);
+ }

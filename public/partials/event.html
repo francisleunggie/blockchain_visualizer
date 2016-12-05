@@ -1,7 +1,9 @@
 <div ng-if="events.length > 0" ng-repeat="event in getActiveEvent(name)">
-<div class="eventCell event sample-show-hide"  ng-class="[event.side + '_event',event.txnHash,event.txnHash==selectedTxn?'highlight':'']" tooltip="{{event.txnHash}}" >
+<div class="eventCell event sample-show-hide"  ng-class="[event.side + '_event',event.txnHash,event.txnHash==selectedTxn?'highlight':'']" >
 	<div class="counter hand" ng-click="switchEvent(name)">{{(getActiveEventIdx(name)+1)+ '\/' + events.length}}</div>
-
+	<md-tooltip md-direction="top">
+	  {{ event.txnHash }}
+	</md-tooltip>
 	<p class="gentleLeft">event: <span>{{ event.name }}</span></p>
 	<p class="gentleLeft">blockNo: <span>{{ event.blockno }}</span></p>
 	<p class="gentleLeft">txnHash: <span>{{ event.txnHash | limitTo:12 }}..</span></p>

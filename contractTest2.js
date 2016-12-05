@@ -5,7 +5,7 @@ const async = require('async');
 
 var web3 = helper.getWeb3();
 var banks = helper.getBanks();
-var needToTransfer = false; // can change: action trigger switch for transfer
+var needToTransfer = true; // can change: action trigger switch for transfer
 var paymap = {
 	6: [3, 4, 5],
 	0: [1, 2, 7],
@@ -13,14 +13,14 @@ var paymap = {
 	1: [3, 5, 0],
 	3: [1, 1, 2]
 };
-var amount = 5000000; // can change
+var amount = 1; // can change
 var create = 0;			// can change: action trigger switches
 var pledge = 0;         // can change: action trigger switches
 var redeem = 0;         // can change: action trigger switches
 var accept = 0;         // can change: action trigger switches
-var reject = 1;         // can change: action trigger switches
-var override = null;	// can change: overrides getSeries
-var txnID = 407;			// can change: when you accept / reject
+var reject = 0;         // can change: action trigger switches
+var override = [36];	// can change: overrides getSeries
+var txnID = 3;			// can change: when you accept / reject
 var seriesEnd = accept+reject>0? txnID:Object.keys(banks).length,
 	zeroMode = accept+reject>0?false:true;
 var needToReset = (create + pledge + redeem + accept + reject)>0;
@@ -33,9 +33,9 @@ console.log(banks);
 var taEvents = bcUtil.watchEvents(helper.getTransactionAgent());
 
 //-- testing - to be removed
-Object.keys(banks).forEach(function(bankName) {
+/*Object.keys(banks).forEach(function(bankName) {
 	console.log('Stash: ' + helper.getStash(bankName));
-});
+});*/
 var balances = helper.getBankBalance(Object.keys(banks));
 console.log(balances);
 //-- end of testing 
@@ -115,6 +115,7 @@ function getSeries(num, zeroMode) {
 
 var series = Array.isArray(override)? override : getSeries(seriesEnd, zeroMode); 
 
+			//transfer(0, 1, 1);
 if (needToTransfer) {
 	Object.keys(paymap).forEach(function(payer) {
 		payees = paymap[payer];

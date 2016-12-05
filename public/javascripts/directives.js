@@ -6,11 +6,11 @@ angular.module('BlockchainMonApp.directives', [])
 		};
 	}).directive("blockView", function() {
 		return {
-			/*scope: {
+			scope: {
 				
 				block: "=input"
-			},*/
-			//restrict: "E", // this means it will be declared as a mark up on html elements
+			},
+			restrict: "A", // this means it will be declared as a mark up on html elements
 			templateUrl: "partials/block.html"
 		};
 	}).directive("transaction", function() {

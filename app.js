@@ -105,6 +105,7 @@ mon.on('connection', function (socket) {
 var web3 = helper.getWeb3();
 var banks = helper.getBanks();
 var bankNames = Object.keys(banks);
+console.log('bankNames', bankNames);
 
 console.log("Connected: " + web3.currentProvider.host);
 

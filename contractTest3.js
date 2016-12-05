@@ -7,7 +7,7 @@ const async = require('async');
 var web3 = helper.getWeb3();
 var needToPrint = true;
 var startFromBlock = 5;
-var endBlock = 7183; // put the block number you want to see
+var endBlock = 22564; // put the block number you want to see
 
 // get banks and use to instantiate stash
 var banks = helper.getBanks();

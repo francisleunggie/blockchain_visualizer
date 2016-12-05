@@ -1,6 +1,6 @@
-<div class="innerCell"  ng-controller="BlockchainController">
-<p class="gentleLeft">blockNum: <span>{{ processedData[blockIndex[selectedBlock]].block.blockNo | limitTo:12 }}..</span></p>
-<!--p class="gentleLeft">blockHash: <span>{{ blockHash | limitTo:12 }}..</span></p>
-<p class="gentleLeft">parentHash: <span>{{ parentHash | limitTo:12 }}..</span></p>
-<p class="gentleLeft">no of txns: <span>{{ transactions.length }}</span></p-->
+<div class="cellContainer blockCell hand"   ng-click="selectBlock(data.blockno)">
+	<p class="gentleLeft">blockNum: <span>{{ data.block.blockNo | limitTo:10 }}</span></p>
+	<p class="gentleLeft">blockHash: <span>{{ data.block.blockHash | limitTo:10 }}..</span></p>
+	<p class="gentleLeft">parentHash: <span>{{ data.block.parentHash | limitTo:10 }}..</span></p>
+	<p class="gentleLeft">no of txns: <span>{{ data.block.transactions.length }}</span></p>
 </div>

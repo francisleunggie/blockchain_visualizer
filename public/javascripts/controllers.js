@@ -41,6 +41,10 @@ angular.module('BlockchainMonApp.controllers', [])
 		socket.on('height check', function () {
 			console.log('height check');
 			var currentHeight = 0;
+			if ($scope.processedData && $scope.processedData[0]) {
+				currentHeight = $scope.processedData[0].blockno;
+			}
+			console.log('height check', currentHeight);
 			socket.emit('current height', {
 				currentHeight: currentHeight
 			});
@@ -155,13 +159,14 @@ function initArrayPerKey(keys, obj) {
 	});
 }
 	
+// note: when new blocks set contains blocks it is already tracking, new blocks will replace the old. This is to cater for block overriding due to consensus. It should not simply concat.
 function updateData(newData, $scope) {
 	console.log('update data', newData, $scope);
 	if (!newData.blocks) return;
 	newProcessedData = []; // clear the array
 	newBlockIndex = {}; // clear the array
+	var newIdx = 0;
 	newData.blocks.forEach(function(block) {
-		if ($scope.blockIndex && $scope.blockIndex[block.blockNo] > -1) return;
 		var newStruct = {blockno: block.blockNo, block : block, trxns : {}, events: {}, activeEvent: {}, activeTxn: {}};
 		initArrayPerKey($scope.banks, newStruct.events);
 		initArrayPerKey($scope.banks, newStruct.trxns);
@@ -208,12 +213,28 @@ function updateData(newData, $scope) {
 		}
 		
 		newProcessedData.push(newStruct);
+		// create a new index array to assist later processing
+		newBlockIndex[blockno] = newIdx++;
 	});
+	var realNewProcessedData = [];
+	// cater for block overriding due to consensus
+	if (newProcessedData && newProcessedData.length > 0) {
+		Object.keys(newBlockIndex).forEach(function(blockno) {
+			var newIdx = newBlockIndex[blockno];
+			if ($scope.blockIndex && $scope.blockIndex[blockno] > -1) {
+				var oldIdx = $scope.blockIndex[blockno];
+				$scope.processedData[oldIdx] = newProcessedData[newIdx];
+			} else { // else concat later
+				realNewProcessedData.push(newProcessedData[newIdx]);
+			}
+		});
+	}
+	
 	// put oldest first, then add new data, and reverse again
 	$scope.processedData = $scope.processedData.reverse();
-	$scope.processedData = $scope.processedData.concat(newProcessedData);
+	$scope.processedData = $scope.processedData.concat(realNewProcessedData);
 	$scope.processedData = $scope.processedData.reverse();
-	// only do this after merge
+	// re-index the data. only do this after merge
 	$scope.processedData.forEach(function(data, index) {
 		$scope.blockIndex[data.blockno] = index;
 	});

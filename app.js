@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const debug = require('debug')('init:server');
 const async = require('async');
+const opt = require('./config.json');
 
 /****************| Start of ExpressJS rubbish |******************/
 //---routes
@@ -44,6 +45,7 @@ app.use(utils.printStackTrace);
 var sio = require('./lib/sio');
 var io = sio.createIOServer(app);
 
+var fetchSize = opt.fetch_size;
 
 var mon = sio.getNameSpace('mon'); // define namespace for monitoring
 mon.on('connection', function (socket) {
@@ -61,19 +63,29 @@ mon.on('connection', function (socket) {
 		console.log('refresh request: ', msg);
 		socket.emit('bank balances', latestBalances);
 		socket.emit('height check', null);
+		if (bankNames) socket.emit('bankNames', bankNames);
 	});
 	
 	
 	socket.on('current height', function(msg) {
 		console.log('current height: ', msg);
 		heightRequest--;
+		if (bankNames) socket.emit('bankNames', bankNames);
 		if (heightRequest > 0) {
 			return;
 		} else if (heightRequest < 0) heightRequest = 0;
 		if (blocks) {
 			var end = blocks.length;
-			var start = end > 25? blocks.length - 25:0;
+			var start = 0;
+			if (msg && msg.currentHeight > 0) {
+				start = latestBlock >= msg.currentHeight?end - (latestBlock - msg.currentHeight):0;
+			} else {
+				start = end > fetchSize? blocks.length - fetchSize:0;
+			}
+			start = start > 5?start-5:0;
+			console.log('msg.currentHeight', msg.currentHeight, 'latestBlock',latestBlock, 'start', start, 'end', end);
 			var newBlocks = blocks.slice(start, end), newTxnView = {};
+			
 			newBlocks.forEach(function(block) {
 				if (txnView && txnView[block.blockNo]) 
 					newTxnView[block.blockNo] = txnView[block.blockNo];
@@ -121,23 +133,52 @@ var latestBlock;
 var blocks, txnView;
 var heightRequest = 0;
 var latestBalances;
+var working = false;
 setInterval(function() {
+	if (working) return;
 	latestBlock = web3.eth.blockNumber;
 	mon.emit('last block', {blockHeight: latestBlock});
 	console.log('diff: ' + getDiffFromLatestBlocks(blocks, latestBlock));
 	numNewBlocks = getDiffFromLatestBlocks(blocks, latestBlock);
 	if (numNewBlocks <= 0) return;
+	working = true;
 	console.log('Blockchain Listener lifecycle: started');
 	async.parallel({
-		txns: function (callback) {
-			bc.getBlocksAndTxns(numNewBlocks, latestBlock, ["receipts","taContracts"], callback);
-		},
 		bals: function (callback) {
 			var balances = helper.getBankBalance(bankNames);
 			var eventName = 'bank balances';
 			mon.emit(eventName, balances);
+			mon.emit('bankNames', bankNames);
 			callback(null, {event: eventName, balances: balances});			
+		},
+		txns: function (callback) {
+			// plus 5 to cater for block overriding due to consensus
+			var start = Date.now();
+			bc.asyncGetBlocksNTxns(numNewBlocks+5, latestBlock, function(map) {
+				if (!blocks || blocks.length == 0) {
+					blocks = map.blocks;
+					txnView = map.txnView;
+				} else {
+					if (!txnView) txnView = {};
+					lastHeight = getBlocksEnd(blocks, false);
+					map.blocks.forEach(function(block) {
+						if (block.blockNo > lastHeight) {
+							blocks.push(block);
+							if (map.txnView && map.txnView[block.blockNo]) txnView[block.blockNo] = map.txnView[block.blockNo];
+						}
+					});
+					
+				}
+				console.log('bc.asyncGetBlocksNTxns done');
+				mon.emit('height check', {request: heightRequest++});
+				var end = Date.now();
+				var diff = end-start;
+				console.log('async fetch took(ms): ', diff);
+				callback(null, {event: 'New Transactions', map: map});
+			});
+			//bc.getBlocksAndTxns(numNewBlocks+5, latestBlock, ["receipts","taContracts"], callback);
 		}
+		
 	}, function (error, response) {
 		Object.keys(response).forEach(function (key) {
 			var data = response[key];
@@ -150,30 +191,12 @@ setInterval(function() {
 			} else {
 				console.log('result:');
 				console.log(p.pretty(data));
-				if (eventName == 'New Transactions') {
-					if (!blocks || blocks.length == 0) {
-						blocks = data.blocks;
-						txnView = data.txnView;
-					} else {
-						if (!txnView) txnView = {};
-						lastHeight = getBlocksEnd(blocks, false);
-						data.blocks.forEach(function(block) {
-							if (block.blockNo > lastHeight) {
-								blocks.push(block);
-								if (data.txnView && data.txnView[block.blockNo]) txnView[block.blockNo] = data.txnView[block.blockNo];
-							}
-						});
-						
-					}
-					
-				} else if (eventName == 'bank balances') {
+				if (eventName == 'bank balances') {
 					latestBalances = data.balances;
 				}				
-				//console.log(blocks);
-				mon.emit('height check', {request: heightRequest++});
 			}
 		});
-
+		working = false;
 		console.log('Blockchain Listener lifecycle: ended');
 	});
 }, 3000);
@@ -187,7 +210,7 @@ function getBlocksEnd(list, start) {
 }
 
 function getDiffFromLatestBlocks(blocks, latestBlock) {
-	if (!blocks || blocks.length == 0) return 25;
+	if (!blocks || blocks.length == 0) return fetchSize;
 	console.log('last block: ' +getBlocksEnd(blocks, false));
 	return latestBlock - getBlocksEnd(blocks, false);
 }

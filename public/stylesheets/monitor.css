@@ -301,8 +301,16 @@ p {
 	font-weight:300;	
 	
 }
+.noReceipt {
+	
+}
 
 md-tooltip {
   font-size: 15px;
-  //background-color:rgba(0, 0, 0, 0.5);
+  color:rgba(255,255,255, 1);
  }
+md-tooltip.md-hue-2 .md-content{
+	color:rgba(255,255,255, 1);
+	background-color:rgba(0, 0, 0, 1) !important;
+	opacity: 1;
+}

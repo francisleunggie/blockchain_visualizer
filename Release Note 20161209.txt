@@ -1,0 +1,12 @@
+Release Note 2016-12-09
+
+1. lib/web3Helper.js
+   reason: fix async request bug "_http_outgoing.js line 351: TypeErr invalid header content". Offending header value: "getKeyByValue". It was incorrectly added as an attr of the Object prototype.
+2. lib/bc.js 
+   reason: added asyncGetBlocksNTxns, decodeReceipts, taFilter methods to make getBlock and Txns async and fast
+3. lib/utils.js 
+   reason: added getSeries method
+4. app.js, contractTest3.js 
+   reason: change to use the asyncGetBlocksNTxns method
+5. config.json
+   reason: changed the ABIs for the new contracts, and updated the fetch_size = 1000.

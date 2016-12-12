@@ -1,9 +1,10 @@
 {
 	"application_name": "Block Chain Visualizer for Ubin",
 	"socket_io_port": 2999,	
+	"fetch_size": 1000,	
 	"ethereum_httprpc_host": "10.10.10.1",
 	"ethereum_httprpc_port": 8545,
-	"transaction_agent_address": "0x000afd05982d6125b005c0021fc2d10d4eb4a6f7",
+	"transaction_agent_address": "0x59b0eec8ad5e9515c9ec328f67416b794ce4433c",
 	"banks" : {
 			"ZYACSGD0" : "0x54a5dba2d7943fd146dbd59caeef61c20b8557e5",
 			"BOFASG20" : "0xa9348b1751d134bbd4183839c888fddf48ce686f",
@@ -303,7 +304,6 @@
       },
       {
         "inputs": [],
-        "payable": false,
         "type": "constructor"
       },
       {
@@ -332,30 +332,6 @@
             "type": "uint256"
           }
         ],
-        "name": "PledgeRedeemRequested",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": false,
-            "name": "transactionId",
-            "type": "uint256"
-          }
-        ],
-        "name": "PledgeRedeemAccepted",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": false,
-            "name": "transactionId",
-            "type": "uint256"
-          }
-        ],
         "name": "PledgeRejected",
         "type": "event"
       },
@@ -369,6 +345,54 @@
           }
         ],
         "name": "PledgeCancelled",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "name": "transactionId",
+            "type": "uint256"
+          }
+        ],
+        "name": "PledgeRequested",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "name": "transactionId",
+            "type": "uint256"
+          }
+        ],
+        "name": "PledgeAccepted",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "name": "transactionId",
+            "type": "uint256"
+          }
+        ],
+        "name": "RedeemRequested",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "name": "transactionId",
+            "type": "uint256"
+          }
+        ],
+        "name": "RedeemAccepted",
         "type": "event"
       }
     ],
@@ -513,7 +537,6 @@
             "type": "int256"
           }
         ],
-        "payable": false,
         "type": "constructor"
       },
       {
